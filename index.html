@@ -1,159 +1,120 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Süleyman Trader Panel</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Süleyman Trader – Piyasa Paneli</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
-    }
-
-    header {
-      padding: 20px;
-      text-align: center;
-      background: rgba(0,0,0,0.4);
-      font-size: 22px;
-      font-weight: bold;
-    }
-
-    .container {
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-
-    .card h2 {
-      margin: 0 0 10px 0;
-      font-size: 18px;
-      color: #00eaff;
-    }
-
-    .price {
-      font-size: 26px;
-      font-weight: bold;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    footer {
-      text-align: center;
-      padding: 14px;
-      font-size: 12px;
-      opacity: 0.7;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+}
+header{
+  padding:20px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+}
+.container{
+  padding:15px;
+}
+.card{
+  background: rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:15px;
+}
+.card h2{
+  margin:0 0 10px;
+  font-size:18px;
+  color:#3fe0ff;
+}
+.price{
+  font-size:28px;
+  font-weight:bold;
+}
+footer{
+  text-align:center;
+  padding:15px;
+  opacity:0.6;
+  font-size:13px;
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  📊 Süleyman Trader – Kişisel Piyasa Paneli
-</header>
+<header>🇮🇹 Süleyman Trader – Kişisel Piyasa Paneli</header>
 
 <div class="container">
 
   <div class="card">
-    <h2>XU100 (BIST 100)</h2>
-    <div class="row">
-      <div class="price" id="xu100">Yükleniyor…</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Ons Altın ($)</h2>
-    <div class="row">
-      <div class="price" id="ons">Yükleniyor…</div>
-    </div>
-  </div>
-
-  <div class="card">
     <h2>Dolar / TL</h2>
-    <div class="row">
-      <div class="price" id="dolar">Yükleniyor…</div>
-    </div>
+    <div class="price" id="dolar">Yükleniyor...</div>
   </div>
 
   <div class="card">
     <h2>Gram Altın (TL)</h2>
-    <div class="row">
-      <div class="price" id="gram">Yükleniyor…</div>
-    </div>
+    <div class="price" id="gram">Yükleniyor...</div>
   </div>
 
   <div class="card">
     <h2>Çeyrek Altın</h2>
-    <div class="row">
-      <div class="price" id="ceyrek">Yükleniyor…</div>
-    </div>
+    <div class="price" id="ceyrek">Yükleniyor...</div>
   </div>
 
   <div class="card">
     <h2>Gümüş (TL)</h2>
-    <div class="row">
-      <div class="price" id="gumus">Yükleniyor…</div>
-    </div>
+    <div class="price" id="gumus">Yükleniyor...</div>
   </div>
 
 </div>
 
-<footer>
-  © 2026 Süleyman Trader | Demo HTML Panel
-</footer>
+<footer>© 2026 Süleyman Trader | Canlı Piyasa Paneli</footer>
+
 <script>
-async function loadPrices() {
-  try {
-    // DOLAR / TL
+async function loadPrices(){
+  try{
+    // USD / TRY
     const fxRes = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=TRY");
-    const fxData = await fxRes.json();
-    const usdtry = fxData.rates.TRY;
-    document.getElementById("dolar").innerText = usdtry.toFixed(2) + " ₺";
+    const fx = await fxRes.json();
+    const usdtry = fx.rates.TRY;
 
-    // ONS ALTIN & GÜMÜŞ
-    const metalRes = await fetch("https://api.metals.live/v1/spot");
-    const metalData = await metalRes.json();
+    document.getElementById("dolar").innerText =
+      usdtry.toFixed(2) + " ₺";
 
-    let gold = 0;
-    let silver = 0;
+    // Gold & Silver (USD)
+    const metalRes = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=gold,silver&vs_currencies=usd"
+    );
+    const metal = await metalRes.json();
 
-    metalData.forEach(m => {
-      if (m[0] === "gold") gold = m[1];
-      if (m[0] === "silver") silver = m[1];
-    });
+    const goldUsd = metal.gold.usd;
+    const silverUsd = metal.silver.usd;
 
-    // Gram Altın
-    const gram = (gold * usdtry) / 31.1;
-    document.getElementById("gram").innerText = gram.toFixed(0) + " ₺";
+    // Calculations
+    const gram = (goldUsd * usdtry) / 31.1;
+    const ceyrek = gram * 1.75;
+    const gumus = silverUsd * usdtry;
 
-    // Çeyrek
-    document.getElementById("ceyrek").innerText = (gram * 1.75).toFixed(0) + " ₺";
+    document.getElementById("gram").innerText =
+      gram.toFixed(0) + " ₺";
+    document.getElementById("ceyrek").innerText =
+      ceyrek.toFixed(0) + " ₺";
+    document.getElementById("gumus").innerText =
+      gumus.toFixed(2) + " ₺";
 
-    // Gümüş TL
-    document.getElementById("gumus").innerText = (silver * usdtry).toFixed(2) + " ₺";
-
-  } catch (e) {
-    console.log(e);
+  }catch(e){
+    console.log("HATA:", e);
   }
 }
 
 loadPrices();
 setInterval(loadPrices, 60000);
 </script>
+
 </body>
 </html>
