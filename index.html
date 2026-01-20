@@ -117,10 +117,43 @@
   © 2026 Süleyman Trader | Demo HTML Panel
 </footer>
 <script>
-  document.getElementById("dolar").innerText = "32,45 ₺";
-  document.getElementById("gram").innerText = "2.480 ₺";
-  document.getElementById("ceyrek").innerText = "4.120 ₺";
-  document.getElementById("gumus").innerText = "28,90 ₺";
+async function loadPrices() {
+  try {
+    // DOLAR / TL
+    const fxRes = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=TRY");
+    const fxData = await fxRes.json();
+    const usdtry = fxData.rates.TRY;
+    document.getElementById("dolar").innerText = usdtry.toFixed(2) + " ₺";
+
+    // ONS ALTIN & GÜMÜŞ
+    const metalRes = await fetch("https://api.metals.live/v1/spot");
+    const metalData = await metalRes.json();
+
+    let gold = 0;
+    let silver = 0;
+
+    metalData.forEach(m => {
+      if (m[0] === "gold") gold = m[1];
+      if (m[0] === "silver") silver = m[1];
+    });
+
+    // Gram Altın
+    const gram = (gold * usdtry) / 31.1;
+    document.getElementById("gram").innerText = gram.toFixed(0) + " ₺";
+
+    // Çeyrek
+    document.getElementById("ceyrek").innerText = (gram * 1.75).toFixed(0) + " ₺";
+
+    // Gümüş TL
+    document.getElementById("gumus").innerText = (silver * usdtry).toFixed(2) + " ₺";
+
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+loadPrices();
+setInterval(loadPrices, 60000);
 </script>
 </body>
 </html>
